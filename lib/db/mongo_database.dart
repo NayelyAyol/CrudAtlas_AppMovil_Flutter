@@ -1,32 +1,37 @@
 import 'package:mongo_dart/mongo_dart.dart';
+
 import '../models/videojuego.dart';
 
 class MongoDatabase {
-  static Db? _db;
-  static DbCollection? _collection;
+  static const String mongoUrl =
+      'mongodb+srv://usuario2026a:usuario2026a@cluster0.xzffuex.mongodb.net/clase_flutter?retryWrites=true&w=majority';
 
-  // Reemplazar usuario, clave y cluster.
-  static const String connectionString =
-      'mongodb+srv://USUARIO:CLAVE@CLUSTER.mongodb.net/clase_flutter?retryWrites=true&w=majority';
+  static const String collectionName = 'videojuegos';
 
-  static Future connect() async {
-    _db = await Db.create(connectionString);
-    await _db!.open();
-    _collection = _db!.collection('videojuegos');
+  static late Db db;
+  static late DbCollection collection;
+
+  static Future<void> connect() async {
+    db = await Db.create(mongoUrl);
+    await db.open();
+    collection = db.collection(collectionName);
   }
 
-  static Future> getVideojuegos() async {
-    final data = await _collection!.find().toList();
-    return data.map((item) => Videojuego.fromMap(item)).toList();
+  static Future<List<Videojuego>> getVideojuegos() async {
+    final List<Map<String, dynamic>> data = await collection.find().toList();
+
+    return data.map((item) {
+      return Videojuego.fromMap(item);
+    }).toList();
   }
 
-  static Future insertVideojuego(Videojuego videojuego) async {
-    await _collection!.insertOne(videojuego.toMap());
+  static Future<void> insertVideojuego(Videojuego videojuego) async {
+    await collection.insertOne(videojuego.toMap());
   }
 
-  static Future updateVideojuego(Videojuego videojuego) async {
-    await _collection!.updateOne(
-      where.eq('_id', videojuego.id),
+  static Future<void> updateVideojuego(Videojuego videojuego) async {
+    await collection.updateOne(
+      where.eq('id', videojuego.id),
       modify
           .set('titulo', videojuego.titulo)
           .set('plataforma', videojuego.plataforma)
@@ -37,7 +42,9 @@ class MongoDatabase {
     );
   }
 
-  static Future deleteVideojuego(String id) async {
-    await _collection!.deleteOne(where.eq('_id', id));
+  static Future<void> deleteVideojuego(String id) async {
+    await collection.deleteOne(
+      where.eq('id', id),
+    );
   }
 }

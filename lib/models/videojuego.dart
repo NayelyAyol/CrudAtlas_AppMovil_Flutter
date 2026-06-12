@@ -1,4 +1,7 @@
+import 'package:mongo_dart/mongo_dart.dart';
+
 class Videojuego {
+  final ObjectId mongoId;
   final String id;
   final String titulo;
   final String plataforma;
@@ -7,7 +10,8 @@ class Videojuego {
   final String imagen;
   final String descripcion;
 
-      Videojuego({
+  Videojuego({
+    ObjectId? mongoId,
     required this.id,
     required this.titulo,
     required this.plataforma,
@@ -15,11 +19,12 @@ class Videojuego {
     required this.stock,
     required this.imagen,
     required this.descripcion,
-  });
+  }) : mongoId = mongoId ?? ObjectId();
 
-  factory Videojuego.fromMap(Map map) {
+  factory Videojuego.fromMap(Map<String, dynamic> map) {
     return Videojuego(
-      id: map['_id'].toString(),
+      mongoId: map['_id'] as ObjectId,
+      id: map['id'] ?? '',
       titulo: map['titulo'] ?? '',
       plataforma: map['plataforma'] ?? '',
       precio: (map['precio'] ?? 0).toDouble(),
@@ -29,9 +34,10 @@ class Videojuego {
     );
   }
 
-  Map toMap() {
+  Map<String, dynamic> toMap() {
     return {
-      '_id': id,
+      '_id': mongoId,
+      'id': id,
       'titulo': titulo,
       'plataforma': plataforma,
       'precio': precio,
@@ -40,4 +46,4 @@ class Videojuego {
       'descripcion': descripcion,
     };
   }
-}v
+}
